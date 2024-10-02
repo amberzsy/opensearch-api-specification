@@ -1,0 +1,66 @@
+openapi: 3.1.0
+info:
+  title: Schemas of _common.query_dsl category
+  description: Schemas of _common.query_dsl category
+  version: 1.0.0
+paths: {}
+components:
+  schemas:
+    Operator:
+      type: string
+      enum:
+        - and
+        - or
+    QueryContainer:
+      type: object
+      properties:
+        terms:
+          description: |-
+            Returns documents that contain one or more exact terms in a provided field.
+          $ref: '#/components/schemas/TermsQueryField'
+
+
+
+    TermsQueryField:
+      type: object
+      properties:
+        boost:
+          description:
+            |-
+            A floating-point value that specifies the weight of this field toward the relevance score.
+            Values above 1.0 increase the field’s relevance. Values between 0.0 and 1.0 decrease the field’s relevance.
+            Default is 1.0.
+          type: number
+          format: float
+      additionalProperties:
+        oneOf:
+          - $ref: '#/components/schemas/TermsLookupField'
+          - type: array
+            items:
+              type: string
+
+    TermsLookupField:
+      type: object
+      properties:
+        index:
+          $ref: '#/components/schemas/IndexName'
+        id:
+          $ref: '#/components/schemas/Id'
+        path:
+          $ref: '#/components/schemas/Field'
+        routing:
+          $ref: '#/components/schemas/Routing'
+
+    IndexName:
+      type: string
+    Id:
+      type: string
+    Field:
+      description: Path to field or array of paths. Some API's support wildcards in the path to select multiple fields.
+      type: string
+    Routing:
+      oneOf:
+        - type: string
+        - type: array
+          items:
+            type: string
