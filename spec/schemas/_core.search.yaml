@@ -983,3 +983,119 @@ components:
         - hits
         - timed_out
         - took
+
+    SearchErrorResponseBody:
+      type: object
+      properties:
+        error:
+          $ref: '#/components/schemas/SearchErrorResponse'
+        status:
+          type: integer
+          format: int32
+      required:
+        - error
+        - status
+
+    #   OpenSearchException.generateThrowableXContent
+    SearchErrorResponse:
+      type: object
+      anyOf:
+        - $ref: '#/components/schemas/SearchErrorResponseInner'
+        - $ref: '#/components/schemas/SearchThrowable'
+
+    SearchErrorResponseInner:
+      type: object
+      properties:
+        type:
+          type: string
+          # example: status_exception
+        reason:
+          type: string
+          # example: DataSource not found
+        caused_by:
+          $ref: '#/components/schemas/SearchErrorResponse'
+        header:
+          $ref: '#/components/schemas/ErrorResponseHeader'
+        stack_trace:
+          type: string
+        suppressed:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchThrowable'
+        root_cause:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchErrorResponse'
+      additionalProperties:
+        $ref: '#/components/schemas/StringOrArray'
+        # metadata
+      required:
+        - reason
+        - type
+
+    SearchThrowable:
+      type: object
+      anyOf:
+        - $ref: '#/components/schemas/ScriptException'
+        - $ref: '#/components/schemas/SearchPhaseExecutionException'
+
+    ScriptException:
+      type: object
+      properties:
+        script_stack:
+          type: array
+          items:
+            type: string
+        script:
+          type: string
+        lang:
+          type: string
+        position:
+          $ref: '#/components/schemas/Position'
+
+    Position:
+      type: object
+      properties:
+        offset:
+          type: string
+        start:
+          type: integer
+          format: int32
+        end:
+          type: integer
+          format: int32
+
+    SearchPhaseExecutionException:
+      type: object
+      properties:
+        phase:
+          type: string
+        grouped:
+          type: boolean
+        failed_shards:
+          type: array
+          items:
+            $ref: '#/components/schemas/FailedShards'
+
+    FailedShards:
+      type: object
+      properties:
+        index:
+          type: string
+        shard:
+          type: string
+        node:
+          type: string
+        reason:
+          $ref: '#/components/schemas/SearchErrorResponse'
+    ErrorResponseHeader:
+      type: object
+      additionalProperties:
+        $ref: '#/components/schemas/StringOrArray'
+
+    StringOrArray:
+      oneOf:
+        - type: string
+        - type: array
+          items:
+            type: string
